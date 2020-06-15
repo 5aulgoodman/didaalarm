@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title></title>
+</head>
+<body>
+<form action="/queryhouse/searchcomp" method="POST">
+    <label>项目名称:   </label>   <input type="text" name="projectname" /><br>
+    <label>面积范围：</label><select name="selectareatype" id="selectareatype">
+                                        <option value="">-请选择-</option>
+                                        <option value="1">0-70</option>
+                                        <option value="2">70-90</option>
+                                        <option value="3">90-120</option>
+                                        <option value="4">120-140</option>
+                                        <option value="5">140-180</option>
+                                        <option value="6">180-210</option>
+                                        <option value="7">210以上</option>
+</select> <br>
+    <label>区县：</label><select name="selectxzq" id="selectxzq">
+                                        <option value="">-请选择-</option>
+                                        <option value="44">渝中区</option>
+                                        <option value="14">南岸区</option>
+                                        <option value="39">江北区</option>
+                                        <option value="4">渝北区</option>
+                                        <option value="9">北碚区</option>
+                                        <option value="29">大渡口区</option>
+                                        <option value="19">沙坪坝区</option>
+                                        <option value="24">九龙坡区</option>
+                                        <option value="34">巴南区</option>
+                                        <option value="1149">两江新区</option>
+                                    </select><br>
+    <label>房屋用途：<select name="selectusertype" id="selectusertype">
+                                        <option value="">-请选择-</option>
+                                        <option value="1">住宅</option>
+                                        <option value="2">办公</option>
+                                        <option value="3">商铺</option>
+                                        <option value="4">其它</option>
+                                    </select></label><br>
+<br>
+    <input type="submit" value="Submit" />
+</form>
+</body>
+</html>
+{% extends "layout.html" %}

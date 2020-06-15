@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload ShiftPlan to DidaAalarm</title>
+</head>
+<body>
+
+<form action="/upload/do" method=post enctype=multipart/form-data>
+      <p><input type=file name=file>
+         <input type=submit value=Upload>
+</form>
+<br>
+{% if plans %}
+<table border="1px">
+    <tr>
+        <th>Duty Date</th>
+        <th>Week</th>
+        <th>Shift Member</th>
+    </tr>
+    {% for i in plans %}
+        <tr>
+            <td align="center">{{i.duty_date}}</td>
+            <td align="center">{{i.cn_name}}</td>
+            <td align="center">{{i.shift}}</td>
+        </tr>
+    {% endfor %}
+</table>
+{% endif %}
+</body>
+</html>
+<br>
+{% extends "layout.html" %}
