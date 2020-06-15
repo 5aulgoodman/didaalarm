@@ -1,0 +1,6 @@
+{% extends "layout.html" %}
+{% block body %}
+  <h1>Logged in as {{ username }} </h1>
+  <p>Continue to <a href="{{ url_for('upload.do') }}"> upload?</a><br>
+  <p>Or do you want to <a href="{{ url_for('upload.logout') }}">log out?</a>
+{% endblock %}

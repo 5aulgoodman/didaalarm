@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ title }}</title>
+    <style type="text/css">
+        #blocksinfo {
+        }
+        thead {
+            background-color: black;
+            color: white;
+            text-indent: 14px;
+            text-align: left;
+        }
+        tbody tr:nth-child(odd) {
+            background-color: rgba(0, 255, 0, 0.1); /* green, 10% alpha */
+        }
+        tbody tr:nth-child(even) {
+            background-color: rgba(0, 255, 0, 0.3); /* red, 30% alpha */
+        }
+    </style>
+</head>
+<body>
+
+<form action="/queryhouse/displayblocks" method=post enctype=multipart/form-data>
+</form>
+<br>
+<table border="1px" id="blocksinfo">
+    <tr>
+        <th>开发商</th>
+        <th>项目名</th>
+        <th>楼栋号</th>
+        <th>趋势图</th>
+    </tr>
+            {% for b in blocks %}
+        <tr>
+            <td align="center">{{ b.enterprisename }}</td>
+            <td align="center">{{ b.projectname }}</td>
+            <td align="center"><a href="{{ url_for('queryhouse.displayrooms',buildingid=b.buildingid,projectname=b.projectname,blockname=b.blockname) }}">{{ b.blockname }}</a></td>
+            <!--<td align="center"><a href="{{ url_for('queryhouse.show',buildingid=b.buildingid,projectname=b.projectname,blockname=b.blockname) }}">查看</a></td>-->
+            <td align="center"><a href="{{ url_for('queryhouse.show',buildingid=b.buildingid,projectname=b.projectname,blockname=b.blockname) }}"><img src="/static/images/trend.png" width=24/></a></td>
+
+        </tr>
+            {% endfor %}
+</table>
+</body>
+</html>
+<br>
+{% extends "layout.html" %}

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ blockname }}</title>
+    <style type="text/css">
+        #roomsinfo {
+        }
+        thead {
+            background-color: black;
+            color: white;
+            text-indent: 14px;
+            text-align: left;
+        }
+        tbody tr:nth-child(odd) {
+            background-color: rgba(0, 255, 0, 0.1); /* green, 10% alpha */
+        }
+        tbody tr:nth-child(even) {
+            background-color: rgba(0, 255, 0, 0.3); /* red, 30% alpha */
+        }
+    </style>
+</head>
+<body>
+
+<form action="/queryhouse/displayrooms" method=post enctype=multipart/form-data>
+<br>
+    <tr>
+        <th>项目名： {{ projectname }}</th><br>
+        <th>楼栋号： {{ blockname }}</th><br>
+        <th>总套数： {{ roomcount }}套</th>
+    </tr><br>
+    <label>排序：</label><select class="form-control" name="selectsorttype" id="selectsorttype" onchange="submit();" >
+                                        <option value="">-请选择-</option>
+                                        <option value="rn" >房号</option>
+                                        <option value="flr">楼层号</option>
+                                        <option value="iArea">套内面积</option>
+                                        <option value="nsjg">套内单价</option>
+                                        <option value="nszj">拟售总价</option>
+                                        <option value="roomstatus">可售状态</option>
+                                    </select><br>
+    <label>已售：<input type="checkbox" name="checksale" value="saled" onchange="submit();"></label>
+<br>
+
+</form>
+<table border="1px" id="roomsinfo">
+
+    <tr>
+        <th>单元</th>
+        <th>房号</th>
+        <th>户型</th>
+        <th>套内面积</th>
+        <th>建筑面积</th>
+        <th>套内单价</th>
+        <th>建面单价</th>
+        <th>拟售总价</th>
+        <th>状态</th>
+    </tr>
+            {% for r in rooms %}
+        <tr>
+            <td align="center">{{ r.unitnumber }}</td>
+            <td align="center">{{ r.flr }}-{{ r.rn }}</td>
+            <td align="center">{{ r.rType }}</td>
+            <td align="center">{{ r.iArea }}</td>
+            <td align="center">{{ r.bArea }}</td>
+            <td align="center">{{ r.nsjg }}</td>
+            <td align="center">{{ r.nsjmjg }}</td>
+            <td align="center">{{ '%.2f' % (r.iArea * r.nsjg) }}</td>
+            <td align="center">{{ r.roomstatus }}</td>
+        </tr>
+            {% endfor %}
+</table>
+</body>
+</html>
+<br>
+{% extends "layout.html" %}
