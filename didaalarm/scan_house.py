@@ -238,6 +238,7 @@ def process_block(block):
 
 
 if __name__ == "__main__":
+    run_day = datetime.date.today()
     time_limit = 3
     engine = create_engine(cfg.MYSQL_URI,
                            pool_pre_ping=True,max_overflow=0,  # 超过连接池大小外最多创建的连接
@@ -249,10 +250,10 @@ if __name__ == "__main__":
 
     regex_str = "^[\u4E00-\u9FA5]{1,10}[（(]([0-9]{4})[）)][\u4E00-\u9FA5]{1,10}[（(]([0-9]{1,5})[)）]"
     session = DBSession()
-    rc_found = session.query(Run_Control).filter(Run_Control.run_day == datetime.date.today()).first()
+    rc_found = session.query(Run_Control).filter(Run_Control.run_day == run_day).first()
     if rc_found is None:
         rc_time = 1
-        new_rc = Run_Control(run_day=datetime.date.today(),run_status="R",start_time=datetime.datetime.now(),\
+        new_rc = Run_Control(run_day=run_day,run_status="R",start_time=datetime.datetime.now(),\
                              end_time=None,cur_minrow=1,cur_maxrow=21,time=rc_time)
         session.add(new_rc)
         session.commit()
@@ -291,14 +292,14 @@ if __name__ == "__main__":
             t.join()
 
         if len(a) == 0:
-            session.query(Run_Control).filter(Run_Control.run_day == datetime.date.today()). \
+            session.query(Run_Control).filter(Run_Control.run_day == run_day). \
                 update({"run_status":"F", "end_time":datetime.datetime.now()})
             session.commit()
             break
 
         payloadData["minrow"] = str(int(payloadData["minrow"]) + 20)
         payloadData["maxrow"] = str(int(payloadData["maxrow"]) + 20)
-        session.query(Run_Control).filter(Run_Control.run_day == datetime.date.today()).\
+        session.query(Run_Control).filter(Run_Control.run_day == run_day).\
             update({"cur_minrow":int(payloadData["minrow"]),"cur_maxrow":int(payloadData["maxrow"])})
         session.commit()
         time.sleep(1)
@@ -363,11 +364,11 @@ where buildingid not in (select buildingid
 
         if not house_found:
             if rc_time == time_limit:
-                session.query(Run_Control).filter(Run_Control.run_day == datetime.date.today()). \
+                session.query(Run_Control).filter(Run_Control.run_day == run_day). \
                     update({"run_status": "C", "end_time": datetime.datetime.now()})
                 session.commit()
             else:
-                session.query(Run_Control).filter(Run_Control.run_day == datetime.date.today()). \
+                session.query(Run_Control).filter(Run_Control.run_day == run_day). \
                     update({"run_status": "R", "end_time": datetime.datetime.now(),
                             "cur_minrow":1, "cur_maxrow":21, "time": rc_time+1})
                 session.commit()
