@@ -8,7 +8,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column,func
 from sqlalchemy.types import *
 from bs4 import BeautifulSoup
-import didaalarm.config as cfg
+import mysql_cfg as cfg
 
 BaseModel = declarative_base()
 
