@@ -191,7 +191,10 @@ def show():
                 plt.yticks(range(math.floor(min(left_list)), math.ceil(max(left_list))+1, y_pace))
                 plt.plot(range(len(left_list)), left_list)
                 plt.scatter(range(len(left_list)), left_list, s=12)
-                quhualv = '{:.0%}'.format((result[-1].total - result[-1].left) / result[-1].total)
+                try:
+                    quhualv = '{:.0%}'.format((result[-1].total - result[-1].left) / result[-1].total)
+                except:
+                    quhualv = 'N/A'
                 cus_legend = '\n总计：'+str(max(total_list))+"套\n去化率："+str(quhualv)
                 # plt.text(len(left_list)-1, (max(left_list)+min(left_list))/2, '总套数：'+str(max(total_list))+"\n去化率："+str(quhualv), ha='center', va='bottom')
                 before_b = 999999
