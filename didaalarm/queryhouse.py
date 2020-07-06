@@ -47,12 +47,19 @@ def displayblocks():
         for i in ['projectname','areaType','siteid','useType']:
             v = request.args.get(i)
             PAYLOADDATA[i] = v
-        blocks = getblocks(PAYLOADDATA)
-        if len(blocks) == 0:
-            flash('没有找到相关的楼盘，请重新输入', 'error')
+        rc, blocks = getblocks(PAYLOADDATA)
+        if rc == 0:
+            if len(blocks) == 0:
+                flash('没有找到相关的楼盘，请重新输入', 'error')
+                return redirect(url_for('.searchcomp'))
+            else:
+                return render_template('queryhouse/displayblocks.html',blocks=blocks,title='搜索结果')
+        elif rc == 99:
+            flash('数据库连接失败，请重试', 'error')
             return redirect(url_for('.searchcomp'))
-        else:
-            return render_template('queryhouse/displayblocks.html',blocks=blocks,title='搜索结果')
+        elif rc == 89:
+            flash('数据请求响应超时，请重试', 'error')
+            return redirect(url_for('.searchcomp'))
 
 
 @queryhouse.route('/displayrooms', methods=['GET', 'POST'])
@@ -64,20 +71,29 @@ def displayrooms():
         buildingid = request.args.get('buildingid')
         PROJECTNAME = request.args.get('projectname')
         BLOCKNAME = request.args.get('blockname')
-        rooms_status_list = getRoomJson(buildingid)
-        for rj in rooms_status_list:
-            # if '井' not in rj['rn'] and '架空' not in rj['rn']:
-            if rj["use"] == "成套住宅" and rj["pid"] == 0:
-                rj['rn'] = str(rj['rn'])
-                rj['flr'] = str(rj['flr'])
-                if rj['roomstatus'] in ('期房', '现房'):
-                    rj['roomstatus'] = rj['roomstatus'] + '可售'
-                elif rj['roomstatus'] in ('网签', '认购'):
-                    rj['roomstatus'] = '已' + rj['roomstatus']
-                else:
-                    pass
-                ROOMSJSON.append(rj)
-        roomsjson_dis = ROOMSJSON
+        rc, rooms_status_list = getRoomJson(buildingid)
+        if rc == 0:
+            for rj in rooms_status_list:
+                # if '井' not in rj['rn'] and '架空' not in rj['rn']:
+                if rj["use"] == "成套住宅" and rj["pid"] == 0:
+                    rj['rn'] = str(rj['rn'])
+                    rj['flr'] = str(rj['flr'])
+                    if rj['roomstatus'] in ('期房', '现房'):
+                        rj['roomstatus'] = rj['roomstatus'] + '可售'
+                    elif rj['roomstatus'] in ('网签', '认购'):
+                        rj['roomstatus'] = '已' + rj['roomstatus']
+                    else:
+                        pass
+                    ROOMSJSON.append(rj)
+            roomsjson_dis = ROOMSJSON
+        elif rc == 99:
+            flash('数据库连接失败，请重试', 'error')
+            return render_template('queryhouse/displayrooms.html', rooms=[], projectname=PROJECTNAME,
+                                   blockname=BLOCKNAME, roomcount=len([]))
+        elif rc == 89:
+            flash('数据请求响应超时，请重试', 'error')
+            return render_template('queryhouse/displayrooms.html', rooms=[], projectname=PROJECTNAME,
+                                   blockname=BLOCKNAME, roomcount=len([]))
 
     if request.method == 'POST':
         checksale = request.form.getlist('checksale')
@@ -237,31 +253,35 @@ def getblocks(payloadData):
         # 'Accept-Language': 'en-US'
     }
     # 下载超时
-    timeOut = 25
+    timeOut = 10
     dumpJsonData = json.dumps(payloadData)
-    res = requests.post(postUrl, data=dumpJsonData, headers=payloadHeader, timeout=timeOut, allow_redirects=True)
-    display = []
-    if res.status_code == 200:
-        try:
-            response_json = json.loads(res.text)
-            a = response_json["d"].replace('[', '').replace(']', '').replace('},', '}@@@')
-            b = a.split('@@@')
-            if b == ['']:
-                return []
-            for presale in b:
-                p = json.loads(presale)
-                blockname_list = p['blockname'].split(',')
-                buildingid_list = p['buildingid'].split(',')
-                lenofbid = len(buildingid_list)
-                for i in range(lenofbid):
-                    tmp = {'projectname':p['projectname'],'enterprisename':p['enterprisename']}
-                    # print(blockname_list[i], ":", buildingid_list[i])
-                    tmp['blockname'] = blockname_list[i]
-                    tmp['buildingid'] = buildingid_list[i]
-                    display.append(tmp)
-        except:
-            return []
-    return display
+    try:
+        res = requests.post(postUrl, data=dumpJsonData, headers=payloadHeader, timeout=timeOut, allow_redirects=True)
+    except:
+        return 89, [] #requests error
+
+    if res is not None:
+        rc = 0
+        display = []
+        response_json = json.loads(res.text)
+        a = response_json["d"].replace('[', '').replace(']', '').replace('},', '}@@@')
+        b = a.split('@@@')
+        if b == ['']:
+            return rc, []
+        for presale in b:
+            p = json.loads(presale)
+            blockname_list = p['blockname'].split(',')
+            buildingid_list = p['buildingid'].split(',')
+            lenofbid = len(buildingid_list)
+            for i in range(lenofbid):
+                tmp = {'projectname':p['projectname'],'enterprisename':p['enterprisename']}
+                # print(blockname_list[i], ":", buildingid_list[i])
+                tmp['blockname'] = blockname_list[i]
+                tmp['buildingid'] = buildingid_list[i]
+                display.append(tmp)
+        return rc, display
+
+    return rc, []
 
 
 def getRoomJson(bid):
@@ -276,8 +296,12 @@ def getRoomJson(bid):
     rooms_status_list = []
     timeOut = 30
     dumpJsonData = json.dumps(payloadData)
-    res = requests.post(url, data=dumpJsonData, headers=payloadHeader, timeout=timeOut, allow_redirects=True)
-    if res.status_code == 200:
+    try:
+        res = requests.post(url, data=dumpJsonData, headers=payloadHeader, timeout=timeOut, allow_redirects=True)
+    except:
+        return 89, [] #requests error
+    if res is not None:
+        rc = 0
         rooms_status = json.loads(res.text)['d']
         a = rooms_status[1:-1].replace('},{\"id\"', '}@@@{\"id\"')
         b = a.split('@@@')
@@ -288,6 +312,6 @@ def getRoomJson(bid):
                     rooms_status_list.append(i)
             except:
                 pass
-        return rooms_status_list
+        return rc, rooms_status_list
     else:
-        return []
+        return rc, []
