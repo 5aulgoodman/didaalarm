@@ -160,7 +160,7 @@ def show():
                 date_list.append(result[j].date)
                 left_list.append(int(result[j].left))
                 total_list.append(result[j].total)
-            if j < len(result) - 1:
+            if len(result) > 0 and j < len(result) - 1:
                 date_list.append(result[-1].date)
                 left_list.append(int(result[-1].left))
                 total_list.append(result[-1].total)
