@@ -225,6 +225,13 @@ def process_block(block):
             session.add(new_blcok)
             # 提交事务
             session.commit()
+        elif avg_price != bd_found.avg_price or max_price != bd_found.max_price \
+                or max_price_floor != bd_found.max_price_floor or min_price != bd_found.min_price \
+                or min_price_floor != bd_found.min_price_floor:
+            session.query(Block_Detail).filter(Block_Detail.buildingid == buildingid). \
+                update({"avg_price": avg_price, "max_price": max_price, "max_price_floor":max_price_floor,
+                        "min_price": min_price, "min_price_floor": min_price_floor})
+            session.commit()
 
         if len(bt_found) == 0:
             if sold_count == 0 and left_count == 0:
