@@ -1,0 +1,9 @@
+*.pyc
+.idea/
+config.py
+__pycache__/
+didaalarm/mysql_cfg.py
+dida.log
+dida.sock
+nohup.out
+
